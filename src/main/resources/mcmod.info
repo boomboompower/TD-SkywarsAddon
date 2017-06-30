@@ -1,0 +1,8 @@
+[
+  {
+    "modid": "td_skywars",
+    "name": "TD-SkywarsAddon",
+    "version": "${version}",
+    "authorList": ["boomboompower"]
+  }
+]
