@@ -17,7 +17,6 @@
 
 package me.boomboompower.textdisplayer.skywarsaddon;
 
-import me.boomboompower.textdisplayer.utils.GlobalUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -33,12 +32,12 @@ public class Command implements ICommand {
 
     @Override
     public String getCommandName() {
-        return "TextDisplayerSkywars";
+        return "textdisplayerskywars";
     }
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/" + getCommandName();
+        return EnumChatFormatting.RED + "Usage /" + getCommandName() + " <status, forceupdate, toggle, isinworld>";
     }
 
     @Override
@@ -49,7 +48,7 @@ public class Command implements ICommand {
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
         if (args.length == 0) {
-            sendMessage("Invalid arguments. (status, forceupdate, toggle)");
+            sendMessage(getCommandUsage(sender));
         } else {
             if (args[0].equalsIgnoreCase("status")) {
                 sendMessage("enabled = [ %s ]", SkywarsAddon.instance.enabled);
@@ -62,6 +61,16 @@ public class Command implements ICommand {
             } else if (args[0].equalsIgnoreCase("toggle")) {
                 SkywarsAddon.instance.enabled = !SkywarsAddon.instance.enabled;
                 sendMessage("This addon is now %s!", (SkywarsAddon.instance.enabled ? EnumChatFormatting.GREEN + "Enabled" + EnumChatFormatting.GRAY : EnumChatFormatting.RED + "Disabled" + EnumChatFormatting.GRAY));
+            } else if (args[0].equalsIgnoreCase("isinworld")) {
+                if (args.length > 1) {
+                    SkywarsAddon.instance.isInWorld = Boolean.valueOf(args[1]);
+                    sendMessage("Set isInWorld to %s", args[1]);
+                } else {
+                    SkywarsAddon.instance.isInWorld = !SkywarsAddon.instance.isInWorld;
+                    sendMessage("Toggled isInWorld variable");
+                }
+            } else {
+                sendMessage(getCommandUsage(sender));
             }
         }
     }

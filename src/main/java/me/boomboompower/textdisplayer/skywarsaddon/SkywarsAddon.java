@@ -39,6 +39,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import org.apache.commons.lang3.text.WordUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.UUID;
 
@@ -148,7 +150,7 @@ public class SkywarsAddon {
             update();
         } else {
             currentTick++;
-            //if (currentTick % 10 == 0) System.out.println(String.format("i @ %s", currentTick));
+            //if (currentTick % 10 == 0) log(String.format("i @ %s", currentTick));
         }
     }
 
@@ -168,11 +170,10 @@ public class SkywarsAddon {
 
     public void update() {
         Minecraft.getMinecraft().addScheduledTask(() -> {
-            HypixelAPI.getInstance().setApiKey(UUID.fromString(""));
+            HypixelAPI.getInstance().setApiKey(UUID.fromString(ApiKey.getKey(true)));
             Request request = RequestBuilder.newBuilder(RequestType.PLAYER).addParam(RequestParam.PLAYER_BY_UUID, Minecraft.getMinecraft().getSession().getProfile().getId()).createRequest();
 
-            System.out.println(request.getURL(HypixelAPI.getInstance()));
-            System.out.println(request.getParams());
+            log("Loaded: " + request.getURL(HypixelAPI.getInstance()));
 
             HypixelAPI.getInstance().getAsync(request, (Callback<PlayerReply>) (failcause, result) -> {
                 try {
@@ -180,7 +181,7 @@ public class SkywarsAddon {
                             getAsJsonObject("stats").
                             getAsJsonObject("SkyWars")
                     );
-                    System.out.println("Updated!");
+                    log("Updated!");
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     System.out.print("Failed to update");
@@ -215,5 +216,9 @@ public class SkywarsAddon {
         ((me.boomboompower.textdisplayer.loading.Placeholder) teams_kit).setReplacement(WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_TEAM", "Default"), "kit_attacking_team_")));
         ((me.boomboompower.textdisplayer.loading.Placeholder) mega_kit).setReplacement(WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_MEGA", "Default"), "kit_mega_mega_")));
         ((me.boomboompower.textdisplayer.loading.Placeholder) solo_kit).setReplacement(WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_SOLO", "Default"), "kit_advanced_solo_")));
+    }
+
+    protected void log(String message, Object... replace) {
+        LogManager.getLogger("TD-Skywars").log(Level.INFO, String.format(message, replace));
     }
 }
