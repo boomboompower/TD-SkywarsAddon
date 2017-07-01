@@ -1,3 +1,20 @@
+/*
+ *     Copyright (C) 2017 boomboompower
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package me.boomboompower.textdisplayer.skywarsaddon;
 
 import com.google.gson.JsonObject;
@@ -11,12 +28,14 @@ import net.hypixel.api.request.RequestType;
 import net.hypixel.api.util.Callback;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -26,50 +45,57 @@ import java.util.UUID;
 @Mod(modid = SkywarsAddon.MOD_ID, name = SkywarsAddon.MOD_NAME, version = SkywarsAddon.VERSION)
 public class SkywarsAddon {
 
+    public static final String PREFIX = EnumChatFormatting.GOLD + "TD-Skywars" + EnumChatFormatting.AQUA + " > " + EnumChatFormatting.GRAY;
     public static final String MOD_ID = "td_skywars";
     public static final String MOD_NAME = "TD-SkywarsAddon";
     public static final String VERSION = "1.0-SNAPSHOT";
 
-    private int currentTick = 0;
-    private boolean enabled = true;
-    private boolean isInWorld = false;
+    @Mod.Instance
+    public static SkywarsAddon instance;
+
+    protected int currentTick = 0;
+
+    protected boolean keyUsed;
+    protected boolean enabled = true;
+    protected boolean isInWorld = false;
 
     /* General numbers */
-    private Object blocks_placed;
-    private Object blocks_broken;
+    protected Object blocks_placed;
+    protected Object blocks_broken;
 
     /* Projectiles */
-    private Object enderpearls_thrown;
-    private Object eggs_thrown;
-    private Object arrows_shot;
-    private Object arrows_hit;
+    protected Object enderpearls_thrown;
+    protected Object eggs_thrown;
+    protected Object arrows_shot;
+    protected Object arrows_hit;
 
     /* Currency */
-    private Object souls;
-    private Object coins;
+    protected Object souls;
+    protected Object coins;
 
     /* Stat numbers */
-    private Object ranked_score;
-    private Object win_streak;
-    private Object assists;
-    private Object deaths;
-    private Object losses;
-    private Object quits;
-    private Object kills;
-    private Object wins;
+    protected Object ranked_score;
+    protected Object win_streak;
+    protected Object assists;
+    protected Object deaths;
+    protected Object losses;
+    protected Object quits;
+    protected Object kills;
+    protected Object wins;
 
     /* Kits */
-    private Object ranked_kit;
-    private Object teams_kit;
-    private Object mega_kit;
-    private Object solo_kit;
+    protected Object ranked_kit;
+    protected Object teams_kit;
+    protected Object mega_kit;
+    protected Object solo_kit;
 
     /* Other */
-    private Object last_mode;
-    private Object cage;
+    protected Object last_mode;
+    protected Object cage;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        ClientCommandHandler.instance.registerCommand(new Command());
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -111,7 +137,6 @@ public class SkywarsAddon {
             last_mode = new me.boomboompower.textdisplayer.loading.Placeholder("sw_last_mode", "Solo");
             cage = new me.boomboompower.textdisplayer.loading.Placeholder("sw_cage", "Default");
         });
-        HypixelAPI.getInstance().setApiKey(UUID.fromString(""));
     }
 
     @SubscribeEvent
@@ -128,19 +153,22 @@ public class SkywarsAddon {
     }
 
     @SubscribeEvent
-    public void onJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        isInWorld = true;
+    public void onJoin(WorldEvent.Load event) {
+        if (event.world.playerEntities.contains(Minecraft.getMinecraft().thePlayer)) {
+            isInWorld = true;
 
-        update();
+            update();
+        }
     }
 
     @SubscribeEvent
-    public void onQuit(PlayerEvent.PlayerLoggedOutEvent event) {
+    public void onQuit(WorldEvent.Unload event) {
         isInWorld = false;
     }
 
-    private void update() {
+    public void update() {
         Minecraft.getMinecraft().addScheduledTask(() -> {
+            HypixelAPI.getInstance().setApiKey(UUID.fromString(""));
             Request request = RequestBuilder.newBuilder(RequestType.PLAYER).addParam(RequestParam.PLAYER_BY_UUID, Minecraft.getMinecraft().getSession().getProfile().getId()).createRequest();
 
             System.out.println(request.getURL(HypixelAPI.getInstance()));
@@ -161,7 +189,7 @@ public class SkywarsAddon {
         });
     }
 
-    private void update(JsonObject array) {
+    protected void update(JsonObject array) {
         ((me.boomboompower.textdisplayer.loading.Placeholder) ranked_score).setReplacement(0); //ranked_score.setReplacement(optInt(array, ""));
         ((me.boomboompower.textdisplayer.loading.Placeholder) win_streak).setReplacement(Utils.optInt(array, "win_streak"));
         ((me.boomboompower.textdisplayer.loading.Placeholder) assists).setReplacement(Utils.optInt(array, "deaths"));

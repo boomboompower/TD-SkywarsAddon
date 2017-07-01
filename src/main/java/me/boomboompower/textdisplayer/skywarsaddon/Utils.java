@@ -41,7 +41,10 @@ public class Utils {
 
     /* Make things easier */
 
-    public static String remove(String input, String toRemove) {
-        return input.replace(toRemove, "");
+    public static String remove(String input, String... toRemove) {
+        for (String s : toRemove) {
+            input = input.replace(s, "");
+        }
+        return input;
     }
 }
