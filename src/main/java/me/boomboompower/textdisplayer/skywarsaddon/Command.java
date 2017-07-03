@@ -56,7 +56,6 @@ public class Command implements ICommand {
                 case "info":
                     sendMessage("enabled = [ %s ]", SkywarsAddon.instance.enabled);
                     sendMessage("keyUsed = [ %s ]", SkywarsAddon.instance.keyUsed);
-                    sendMessage("isInWorld = [ %s ]", SkywarsAddon.instance.isInWorld);
                     sendMessage("currentTick = [ %s ]", SkywarsAddon.instance.currentTick);
                     break;
                 case "toggle":
@@ -66,17 +65,6 @@ public class Command implements ICommand {
                 case "forceupdate":
                     sendMessage("Updated, text should be fixed!");
                     SkywarsAddon.instance.update();
-                    break;
-                case "world":
-                case "toggleworld":
-                case "isinworld":
-                    if (args.length > 1) {
-                        SkywarsAddon.instance.isInWorld = Boolean.valueOf(args[1]);
-                        sendMessage("Set isInWorld to %s", Boolean.valueOf(args[1]));
-                    } else {
-                        SkywarsAddon.instance.isInWorld = !SkywarsAddon.instance.isInWorld;
-                        sendMessage("Toggled isInWorld variable");
-                    }
                     break;
                 default:
                     sendMessage(getCommandUsage(sender));
@@ -92,7 +80,7 @@ public class Command implements ICommand {
 
     @Override
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
-        return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args, "status", "update", "toggle", "world") : null;
+        return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args, "status", "update", "toggle") : null;
     }
 
     @Override

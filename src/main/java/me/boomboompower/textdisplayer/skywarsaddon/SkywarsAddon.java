@@ -59,7 +59,6 @@ public class SkywarsAddon {
 
     protected boolean keyUsed;
     protected boolean enabled = true;
-    protected boolean isInWorld = false;
 
     /* General numbers */
     protected Object blocks_placed;
@@ -143,7 +142,7 @@ public class SkywarsAddon {
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
-        if (!isInWorld || !enabled) return;
+        if (!enabled) return;
 
         if (currentTick > 1200) {
             currentTick = 0;
@@ -156,16 +155,7 @@ public class SkywarsAddon {
 
     @SubscribeEvent
     public void onJoin(WorldEvent.Load event) {
-        if (event.world.playerEntities.contains(Minecraft.getMinecraft().thePlayer)) {
-            isInWorld = true;
-
-            update();
-        }
-    }
-
-    @SubscribeEvent
-    public void onQuit(WorldEvent.Unload event) {
-        isInWorld = false;
+        update();
     }
 
     public void update() {
