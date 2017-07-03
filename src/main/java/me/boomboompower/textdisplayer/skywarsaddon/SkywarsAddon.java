@@ -35,6 +35,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -50,10 +51,12 @@ public class SkywarsAddon {
     public static final String PREFIX = EnumChatFormatting.GOLD + "TD-Skywars" + EnumChatFormatting.AQUA + " > " + EnumChatFormatting.GRAY;
     public static final String MOD_ID = "td_skywars";
     public static final String MOD_NAME = "TD-SkywarsAddon";
-    public static final String VERSION = "1.0-SNAPSHOT";
+    public static final String VERSION = "1.1-SNAPSHOT";
 
     @Mod.Instance
     public static SkywarsAddon instance;
+
+    public static FileUtils fileUtils;
 
     protected int currentTick = 0;
 
@@ -95,6 +98,11 @@ public class SkywarsAddon {
     protected Object cage;
 
     @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        fileUtils = new FileUtils(event.getSuggestedConfigurationFile());
+    }
+
+    @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         ClientCommandHandler.instance.registerCommand(new Command());
         MinecraftForge.EVENT_BUS.register(this);
@@ -102,6 +110,8 @@ public class SkywarsAddon {
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+        fileUtils.loadConfig();
+
         Minecraft.getMinecraft().addScheduledTask(() -> {
             try {
                 Class.forName("me.boomboompower.textdisplayer.loading.Placeholder");
@@ -144,12 +154,14 @@ public class SkywarsAddon {
     public void onTick(TickEvent.ClientTickEvent event) {
         if (!enabled) return;
 
-        if (currentTick > 1200) {
-            currentTick = 0;
-            update();
-        } else {
-            currentTick++;
-            //if (currentTick % 10 == 0) log(String.format("i @ %s", currentTick));
+        if (Minecraft.getMinecraft().currentScreen == null) { // Stop loading when not in game
+            if (currentTick > 1200) {
+                currentTick = 0;
+                update();
+            } else {
+                currentTick++;
+                //if (currentTick % 10 == 0) log(String.format("i @ %s", currentTick));
+            }
         }
     }
 
@@ -163,15 +175,13 @@ public class SkywarsAddon {
             HypixelAPI.getInstance().setApiKey(UUID.fromString(ApiKey.getKey(true)));
             Request request = RequestBuilder.newBuilder(RequestType.PLAYER).addParam(RequestParam.PLAYER_BY_UUID, Minecraft.getMinecraft().getSession().getProfile().getId()).createRequest();
 
-            log("Loaded: " + request.getURL(HypixelAPI.getInstance()));
-
             HypixelAPI.getInstance().getAsync(request, (Callback<PlayerReply>) (failcause, result) -> {
                 try {
                     update(result.getPlayer().
                             getAsJsonObject("stats").
                             getAsJsonObject("SkyWars")
                     );
-                    log("Updated!");
+                    log("Updated: URL: " + request.getURL(HypixelAPI.getInstance()));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     System.out.print("Failed to update");
