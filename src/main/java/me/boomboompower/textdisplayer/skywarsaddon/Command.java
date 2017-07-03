@@ -18,6 +18,7 @@
 package me.boomboompower.textdisplayer.skywarsaddon;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -37,7 +38,7 @@ public class Command implements ICommand {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return EnumChatFormatting.RED + "Usage /" + getCommandName() + " <status, forceupdate, toggle, isinworld>";
+        return EnumChatFormatting.RED + "Usage /" + getCommandName() + " <status, update, toggle, world>";
     }
 
     @Override
@@ -50,27 +51,36 @@ public class Command implements ICommand {
         if (args.length == 0) {
             sendMessage(getCommandUsage(sender));
         } else {
-            if (args[0].equalsIgnoreCase("status")) {
-                sendMessage("enabled = [ %s ]", SkywarsAddon.instance.enabled);
-                sendMessage("keyUsed = [ %s ]", SkywarsAddon.instance.keyUsed);
-                sendMessage("isInWorld = [ %s ]", SkywarsAddon.instance.isInWorld);
-                sendMessage("currentTick = [ %s ]", SkywarsAddon.instance.currentTick);
-            } else if (args[0].equalsIgnoreCase("forceupdate")) {
-                sendMessage("Updated, text should be fixed!");
-                SkywarsAddon.instance.update();
-            } else if (args[0].equalsIgnoreCase("toggle")) {
-                SkywarsAddon.instance.enabled = !SkywarsAddon.instance.enabled;
-                sendMessage("This addon is now %s!", (SkywarsAddon.instance.enabled ? EnumChatFormatting.GREEN + "Enabled" + EnumChatFormatting.GRAY : EnumChatFormatting.RED + "Disabled" + EnumChatFormatting.GRAY));
-            } else if (args[0].equalsIgnoreCase("isinworld")) {
-                if (args.length > 1) {
-                    SkywarsAddon.instance.isInWorld = Boolean.valueOf(args[1]);
-                    sendMessage("Set isInWorld to %s", args[1]);
-                } else {
-                    SkywarsAddon.instance.isInWorld = !SkywarsAddon.instance.isInWorld;
-                    sendMessage("Toggled isInWorld variable");
-                }
-            } else {
-                sendMessage(getCommandUsage(sender));
+            switch (args[0]) {
+                case "status":
+                case "info":
+                    sendMessage("enabled = [ %s ]", SkywarsAddon.instance.enabled);
+                    sendMessage("keyUsed = [ %s ]", SkywarsAddon.instance.keyUsed);
+                    sendMessage("isInWorld = [ %s ]", SkywarsAddon.instance.isInWorld);
+                    sendMessage("currentTick = [ %s ]", SkywarsAddon.instance.currentTick);
+                    break;
+                case "toggle":
+                    sendMessage("This addon is now %s!", ((SkywarsAddon.instance.enabled = !SkywarsAddon.instance.enabled) ? EnumChatFormatting.GREEN + "Enabled" + EnumChatFormatting.GRAY : EnumChatFormatting.RED + "Disabled" + EnumChatFormatting.GRAY));
+                    break;
+                case "update":
+                case "forceupdate":
+                    sendMessage("Updated, text should be fixed!");
+                    SkywarsAddon.instance.update();
+                    break;
+                case "world":
+                case "toggleworld":
+                case "isinworld":
+                    if (args.length > 1) {
+                        SkywarsAddon.instance.isInWorld = Boolean.valueOf(args[1]);
+                        sendMessage("Set isInWorld to %s", Boolean.valueOf(args[1]));
+                    } else {
+                        SkywarsAddon.instance.isInWorld = !SkywarsAddon.instance.isInWorld;
+                        sendMessage("Toggled isInWorld variable");
+                    }
+                    break;
+                default:
+                    sendMessage(getCommandUsage(sender));
+                    break;
             }
         }
     }
@@ -82,7 +92,7 @@ public class Command implements ICommand {
 
     @Override
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
-        return null;
+        return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args, "status", "update", "toggle", "world") : null;
     }
 
     @Override

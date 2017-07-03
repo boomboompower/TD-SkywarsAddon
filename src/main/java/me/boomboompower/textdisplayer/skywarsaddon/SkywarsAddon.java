@@ -215,7 +215,7 @@ public class SkywarsAddon {
         ((me.boomboompower.textdisplayer.loading.Placeholder) ranked_kit).setReplacement(WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_RANKED", "Default"), "kit_ranked_ranked_")));
         ((me.boomboompower.textdisplayer.loading.Placeholder) teams_kit).setReplacement(WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_TEAM", "Default"), "kit_attacking_team_")));
         ((me.boomboompower.textdisplayer.loading.Placeholder) mega_kit).setReplacement(WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_MEGA", "Default"), "kit_mega_mega_")));
-        ((me.boomboompower.textdisplayer.loading.Placeholder) solo_kit).setReplacement(WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_SOLO", "Default"), "kit_advanced_solo_")));
+        ((me.boomboompower.textdisplayer.loading.Placeholder) solo_kit).setReplacement(WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_SOLO", "Default"), "kit_advanced_solo_", "kit_basic_solo_")));
     }
 
     protected void log(String message, Object... replace) {
