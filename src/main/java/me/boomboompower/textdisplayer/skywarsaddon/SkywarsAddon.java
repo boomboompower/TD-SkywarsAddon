@@ -105,7 +105,6 @@ public class SkywarsAddon {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         ClientCommandHandler.instance.registerCommand(new Command());
-        ClientCommandHandler.instance.registerCommand(new StatsCommand());
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -156,13 +155,15 @@ public class SkywarsAddon {
         if (!enabled) return;
 
         if (Minecraft.getMinecraft().currentScreen == null) { // Stop loading when not in game
-            if (currentTick > 1200) {
-                currentTick = 0;
-                update();
-            } else {
-                currentTick++;
-                //if (currentTick % 10 == 0) log(String.format("i @ %s", currentTick));
-            }
+            Minecraft.getMinecraft().addScheduledTask(() -> {
+                if (currentTick > 1200) {
+                    currentTick = 0;
+                    update();
+                } else {
+                    currentTick++;
+                    //if (currentTick % 10 == 0) log(String.format("i @ %s", currentTick));
+                }
+            });
         }
     }
 
