@@ -101,33 +101,30 @@ public class StatsCommand implements ICommand {
     }
 
     private JsonObject create(final String playerName) {
-        Minecraft.getMinecraft().addScheduledTask(() -> {
-            HypixelAPI.getInstance().setApiKey(UUID.fromString(ApiKey.getKey(false)));
-            Request request = RequestBuilder.newBuilder(RequestType.PLAYER).addParam(RequestParam.PLAYER_BY_NAME, playerName).createRequest();
+        final JsonObject[] response = new JsonObject[1];
 
-            final JsonObject[] response = new JsonObject[1];
+        HypixelAPI.getInstance().setApiKey(UUID.fromString(ApiKey.getKey(false)));
+        Request request = RequestBuilder.newBuilder(RequestType.PLAYER).addParam(RequestParam.PLAYER_BY_NAME, playerName).createRequest();
 
-            HypixelAPI.getInstance().getAsync(request, (Callback<PlayerReply>) (failcause, result) -> {
-                try {
-                    response[0] = result.getPlayer().getAsJsonObject("stats").getAsJsonObject("SkyWars");
-                } catch (Exception ex) {
-                    response[0] = new JsonObject();
-                }
-            });
-            return response[0];
+        HypixelAPI.getInstance().getAsync(request, (Callback<PlayerReply>) (failcause, result) -> {
+            try {
+                response[0] = result.getPlayer().getAsJsonObject("stats").getAsJsonObject("SkyWars");
+            } catch (Exception ex) {
+                response[0] = new JsonObject();
+            }
         });
-        return new JsonObject();
+        return response[0] != null ? response[0] : new JsonObject();
     }
 
     private void sendStats(String playerName, JsonObject array, String[] args) {
-        sendMessage(EnumChatFormatting.BLUE + "-----------------------------------------------------");
-        if (args.length == 1) {
+        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.BLUE + "-----------------------------------------------------"));
+        if (args.length == 0) {
             sendMessage("Showing information about %s", playerName);
-            sendMessage("  - Wins", Utils.optInt(array, "wins"));
-            sendMessage("  - Kills", Utils.optInt(array, "kills"));
-            sendMessage("  - Assists", Utils.optInt(array, "assists"));
-            sendMessage("  - Deaths", Utils.optInt(array, "deaths"));
-            sendMessage("  - Win streak", Utils.optInt(array, "win_streak"));
+            sendMessage("  - Wins: %s", Utils.optInt(array, "wins"));
+            sendMessage("  - Kills: %s", Utils.optInt(array, "kills"));
+            sendMessage("  - Assists: %s", Utils.optInt(array, "assists"));
+            sendMessage("  - Deaths: %s", Utils.optInt(array, "deaths"));
+            sendMessage("  - Win streak: %s", Utils.optInt(array, "win_streak"));
         } else {
             switch (args[1]) {
                 default:
@@ -138,10 +135,10 @@ public class StatsCommand implements ICommand {
                 case "assists":
                 case "deaths":
                     sendMessage("Showing information about %s for page 1", EnumChatFormatting.GOLD + playerName + EnumChatFormatting.GRAY);
-                    sendMessage("  - Wins", Utils.optInt(array, "wins"));
-                    sendMessage("  - Kills", Utils.optInt(array, "kills"));
-                    sendMessage("  - Assists", Utils.optInt(array, "assists"));
-                    sendMessage("  - Deaths", Utils.optInt(array, "deaths"));
+                    sendMessage("  - Wins: %s", Utils.optInt(array, "wins"));
+                    sendMessage("  - Kills: %s", Utils.optInt(array, "kills"));
+                    sendMessage("  - Assists: %s", Utils.optInt(array, "assists"));
+                    sendMessage("  - Deaths: %s", Utils.optInt(array, "deaths"));
                     break;
                 case "2":
                 case "coin":
@@ -149,10 +146,10 @@ public class StatsCommand implements ICommand {
                 case "coins":
                 case "souls":
                     sendMessage("Showing information about %s for page 2", EnumChatFormatting.GOLD + playerName + EnumChatFormatting.GRAY);
-                    sendMessage("  - Quits", Utils.optInt(array, "quits"));
-                    sendMessage("  - Coins", Utils.optInt(array, "coins"));
-                    sendMessage("  - Souls", Utils.optInt(array, "souls"));
-                    sendMessage("  - Win streak", Utils.optInt(array, "win_streak"));
+                    sendMessage("  - Quits: %s", Utils.optInt(array, "quits"));
+                    sendMessage("  - Coins: %s", Utils.optInt(array, "coins"));
+                    sendMessage("  - Souls: %s", Utils.optInt(array, "souls"));
+                    sendMessage("  - Win streak: %s", Utils.optInt(array, "win_streak"));
                     break;
                 case "3":
                 case "egg":
@@ -162,10 +159,10 @@ public class StatsCommand implements ICommand {
                 case "enderpearl":
                 case "enderpearls":
                     sendMessage("Showing information about %s for page 3", EnumChatFormatting.GOLD + playerName + EnumChatFormatting.GRAY);
-                    sendMessage("  - Enderpearls thrown", Utils.optInt(array, "enderpearls_thrown"));
-                    sendMessage("  - Eggs thrown", Utils.optInt(array, "egg_thrown"));
-                    sendMessage("  - Arrows shot", Utils.optInt(array, "arrows_shot"));
-                    sendMessage("  - Arrows hit", Utils.optInt(array, "arrows_hit"));
+                    sendMessage("  - Enderpearls thrown: %s", Utils.optInt(array, "enderpearls_thrown"));
+                    sendMessage("  - Eggs thrown: %s", Utils.optInt(array, "egg_thrown"));
+                    sendMessage("  - Arrows shot: %s", Utils.optInt(array, "arrows_shot"));
+                    sendMessage("  - Arrows hit: %s", Utils.optInt(array, "arrows_hit"));
                     break;
                 case "4":
                 case "mode":
@@ -173,23 +170,23 @@ public class StatsCommand implements ICommand {
                 case "block":
                 case "blocks":
                     sendMessage("Showing information about %s for page 4", EnumChatFormatting.GOLD + playerName + EnumChatFormatting.GRAY);
-                    sendMessage("  - Blocks placed", Utils.optInt(array, "blocks_placed"));
-                    sendMessage("  - Blocks broken", Utils.optInt(array, "blocks_broken"));
-                    sendMessage("  - Last mode", WordUtils.capitalizeFully(Utils.optString(array, "lastMode", "Solo")));
-                    sendMessage("  - Active cage", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeCage", "Normal"), "cage_")));
+                    sendMessage("  - Blocks placed: %s", Utils.optInt(array, "blocks_placed"));
+                    sendMessage("  - Blocks broken: %s", Utils.optInt(array, "blocks_broken"));
+                    sendMessage("  - Last mode: %s", WordUtils.capitalizeFully(Utils.optString(array, "lastMode", "Solo")));
+                    sendMessage("  - Active cage: %s", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeCage", "Normal"), "cage_")));
                     break;
                 case "5":
                 case "kit":
                 case "kits":
                     sendMessage("Showing information about %s for page 4", EnumChatFormatting.GOLD + playerName + EnumChatFormatting.GRAY);
-                    sendMessage("  - Ranked kit", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_RANKED", "Default"), "kit_ranked_ranked_")));
-                    sendMessage("  - Teams kit", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_TEAM", "Default"), "kit_attacking_team_")));
-                    sendMessage("  - Mega kit", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_MEGA", "Default"), "kit_mega_mega_")));
-                    sendMessage("  - Solo kit", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_SOLO", "Default"), "kit_advanced_solo_", "kit_basic_solo_")));
+                    sendMessage("  - Ranked kit: %s", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_RANKED", "Default"), "kit_ranked_ranked_")));
+                    sendMessage("  - Teams kit: %s", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_TEAM", "Default"), "kit_attacking_team_")));
+                    sendMessage("  - Mega kit: %s", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_MEGA", "Default"), "kit_mega_mega_")));
+                    sendMessage("  - Solo kit: %s", WordUtils.capitalizeFully(Utils.remove(Utils.optString(array, "activeKit_SOLO", "Default"), "kit_advanced_solo_", "kit_basic_solo_")));
                     break;
             }
         }
-        sendMessage(EnumChatFormatting.BLUE + "-----------------------------------------------------");
+        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.BLUE + "-----------------------------------------------------"));
     }
 
     protected void log(String message, Object... replace) {
