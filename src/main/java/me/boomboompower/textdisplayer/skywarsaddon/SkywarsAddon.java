@@ -105,6 +105,7 @@ public class SkywarsAddon {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         ClientCommandHandler.instance.registerCommand(new Command());
+        ClientCommandHandler.instance.registerCommand(new StatsCommand());
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -193,7 +194,7 @@ public class SkywarsAddon {
     protected void update(JsonObject array) {
         ((me.boomboompower.textdisplayer.loading.Placeholder) ranked_score).setReplacement(0); //ranked_score.setReplacement(optInt(array, ""));
         ((me.boomboompower.textdisplayer.loading.Placeholder) win_streak).setReplacement(Utils.optInt(array, "win_streak"));
-        ((me.boomboompower.textdisplayer.loading.Placeholder) assists).setReplacement(Utils.optInt(array, "deaths"));
+        ((me.boomboompower.textdisplayer.loading.Placeholder) assists).setReplacement(Utils.optInt(array, "assists"));
         ((me.boomboompower.textdisplayer.loading.Placeholder) deaths).setReplacement(Utils.optInt(array, "deaths"));
         ((me.boomboompower.textdisplayer.loading.Placeholder) souls).setReplacement(Utils.optInt(array, "souls"));
         ((me.boomboompower.textdisplayer.loading.Placeholder) coins).setReplacement(Utils.optInt(array, "coins"));
